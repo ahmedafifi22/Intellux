@@ -10,7 +10,6 @@ class PID:
             controller output = p[n] + i[n] + d[n]
 
         Parameters:
-            sensor_measurement (float): current sensor reading
             Kp (float): constant gain for the proportional component of the PID controller
             Ki (float): constant gain for the integrator component of the PID controller
             Kd (float): constant gain for the differentiator component of the PID controller
