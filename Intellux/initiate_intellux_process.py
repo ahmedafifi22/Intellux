@@ -1,9 +1,9 @@
 import RPi.GPIO as GPIO
 import time
 
-from end_effector_movement import Pi_LED
-from sensor_data_collection import Pi_ADS1115, Pi_TEMT6000
-from control_algorithm import p_controller
+from mechanical_module import Pi_LED, Pi_28BYJ_48
+from sensors_module import Pi_ADS1115, Pi_TEMT6000
+from control_module import p_controller, Manual_Mode_Controller
 
 def test_sensor_output():
     GPIO.setmode(GPIO.BOARD) #defines naming convention to be used for the pins
@@ -76,9 +76,20 @@ def Control_room_brightness_using_LED():
     led.pwm_instance.stop()                         # stop PWM
     GPIO.cleanup()                     # resets GPIO ports used back to input mode
 
+def test_manual_mode():
+    GPIO.setwarnings(False)
+    GPIO.setmode(GPIO.BCM) #defines naming convention to be used for the pins
+    stepper_motor = Pi_28BYJ_48(in1=17, in2=18, in3=27, in4=22)
+    controller = Manual_Mode_Controller()
+    print(stepper_motor.motor_global_step_counter)
+
+    while True:
+        required_blinds_angle = int(input("Enter desired blinds angle: "))
+        required_stepper_motor_position = controller.get_required_stepper_motor_position(required_blinds_angle)
+        stepper_motor.move_to_required_stepper_position(required_stepper_motor_position)
 
 if __name__=='__main__':
-    Control_room_brightness_using_LED()
+    test_manual_mode()
     
     
 #scp -r "C:\Users\Dell\Desktop\current_development_projects\Intellux\Intellux" pi@192.168.0.64:~/development_projects/intellux
