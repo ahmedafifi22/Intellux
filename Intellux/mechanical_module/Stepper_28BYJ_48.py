@@ -36,7 +36,6 @@ class Pi_28BYJ_48:
         self.index_files_directory = os.path.join(self.root,'stepper_position')
         if os.path.isdir(self.index_files_directory) == False:
             os.mkdir(self.index_files_directory)
-            print(self.index_files_directory)
 
         self.motor_step_sequence_counter_file = os.path.join(self.index_files_directory, 'motor_step_sequence_counter.npy') # To Load the previous index
         self.motor_global_step_counter_file = os.path.join(self.index_files_directory, 'motor_global_step_counter.npy') # To Load the previous index
