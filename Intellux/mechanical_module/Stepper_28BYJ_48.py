@@ -1,5 +1,8 @@
 import RPi.GPIO as GPIO
 import time
+import os
+import numpy as np
+from pathlib import Path
 
 
 class Pi_28BYJ_48:
@@ -29,8 +32,28 @@ class Pi_28BYJ_48:
                             [0,0,1,1],
                             [0,0,0,1]]
 
-        self.motor_step_sequence_counter = 0  
-        self.motor_global_step_counter = 0  
+        self.root = Path(os.path.abspath(__file__)).parents[0]
+        self.index_files_directory = os.path.join(self.root,'stepper_position')
+        if os.path.isdir(self.index_files_directory) == False:
+            os.mkdir(self.index_files_directory)
+            print(self.index_files_directory)
+
+        self.motor_step_sequence_counter_file = os.path.join(self.index_files_directory, 'motor_step_sequence_counter.npy') # To Load the previous index
+        self.motor_global_step_counter_file = os.path.join(self.index_files_directory, 'motor_global_step_counter.npy') # To Load the previous index
+        
+        if os.path.isfile(self.motor_step_sequence_counter_file) == True: #Load previous index
+            self.motor_step_sequence_counter = np.load(self.motor_step_sequence_counter_file)
+        else:
+            with open(self.motor_step_sequence_counter_file, 'wb') as f:
+                np.save(f, 0)
+            self.motor_step_sequence_counter = np.load(self.motor_step_sequence_counter_file)
+        
+        if os.path.isfile(self.motor_global_step_counter_file) == True: #Load previous index
+            self.motor_global_step_counter = np.load(self.motor_global_step_counter_file)
+        else:
+            with open(self.motor_global_step_counter_file, 'wb') as f:
+                np.save(f, 0)
+            self.motor_global_step_counter = np.load(self.motor_global_step_counter_file)
 
     def setup_motor_pins(self):
         # setting up
@@ -67,13 +90,19 @@ class Pi_28BYJ_48:
         if steps_difference < 0:
             self.turn_CCW(abs(steps_difference))
             assert(required_stepper_position == self.motor_global_step_counter)
+            self.save_stepper_positions()
             print(self.motor_global_step_counter)
         elif steps_difference > 0:
             self.turn_CW(steps_difference)
             assert(required_stepper_position == self.motor_global_step_counter)
+            self.save_stepper_positions()
             print(self.motor_global_step_counter)
         else:
-            pass
+            self.save_stepper_positions()
+
+    def save_stepper_positions(self):
+        np.save(self.motor_step_sequence_counter_file, self.motor_step_sequence_counter)
+        np.save(self.motor_global_step_counter_file, self.motor_global_step_counter)
 
     def cleanup(self):
         GPIO.output(self.in1, GPIO.LOW)
@@ -82,8 +111,6 @@ class Pi_28BYJ_48:
         GPIO.output(self.in4, GPIO.LOW)
         GPIO.cleanup()
 
-if __name__ == '__main__':
-    x = Pi_28BYJ_48(in1=17, in2=18, in3=27, in4=22)
-    x.turn_CW(4096)
-    x.turn_CCW(4096)
-    print(x.motor_global_step_counter)
+
+
+
