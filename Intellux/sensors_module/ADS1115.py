@@ -3,7 +3,6 @@ import Adafruit_ADS1x15
 
 class Pi_ADS1115:
     """Class to setup the Adafruit ADS1115 analog to digital converter for use in the scope of the intellux project"""
-
     def __init__(self):
         self.adc_instance = Adafruit_ADS1x15.ADS1115()
         self.gain_FSR_dict = { #full scale input range of the ADC which is defined in datasheet
@@ -20,4 +19,3 @@ class Pi_ADS1115:
         LSB_size = FSR / (2**16) #This is the resolution (weight of the least significant bit)
         input_voltage = digital_output_code * LSB_size
         return input_voltage
-
