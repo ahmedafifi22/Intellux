@@ -88,7 +88,6 @@ class Pi_17HS4023_L298N:
                 GPIO.output( self.motor_pins[pin], self.step_sequence[self.motor_step_sequence_counter][pin] )
             time.sleep(self.step_sleep)
             self.motor_global_step_counter = self.motor_global_step_counter - 1
-            assert(self.motor_global_step_counter >= 0)
 
     def move_to_required_stepper_position(self, required_stepper_position):
         steps_difference = required_stepper_position - self.motor_global_step_counter
