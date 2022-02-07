@@ -6,10 +6,13 @@ import numpy as np
 
 from pathlib import Path
 from Intellux import calibrate_intellux
+from pdb import set_trace as bp
 
 def start_calibration(turning_direction):
-    root = Path(os.path.abspath(__file__)).parents[0]
-    index_files_directory = os.path.join( root, 'calibration_info')
+    #bp()
+    root = Path(os.path.abspath(__file__)).parents[1]
+
+    index_files_directory = os.path.join( root, 'Intellux', 'mechanical_module', 'calibration_info')
     if os.path.isdir(index_files_directory) == False:
         os.mkdir( index_files_directory)
 
@@ -20,22 +23,27 @@ def start_calibration(turning_direction):
 
     if os.path.isfile(calibration_status_file):  # Load previous index
         calibration_status = np.load(calibration_status_file)
+        if calibration_status == 0:
+            new_calibration_status = 1
+        elif calibration_status == 1:
+            new_calibration_status = 0
+        else:
+            raise ValueError("Unknown value loaded")
+
         with open(calibration_status_file, 'wb') as f:
-            np.save(f, not calibration_status)  # First time calibration
+            np.save(f, new_calibration_status)  # First time calibration
     else:
         with open(calibration_status_file, 'wb') as f:
             np.save(f, 1)  # First time calibration
-        calibration_status = 1
+        new_calibration_status = 1
 
     if not os.path.isfile(full_range_steps_file):  # Load previous index
         with open(full_range_steps_file, 'wb') as f:
             np.save(f, 0)
 
-    if not calibration_status == 1:
+    if new_calibration_status == 1:
         calibration = calibrate_intellux(turning_direction)
         calibration.start_calibration()
-
-
 
 
 if __name__=='__main__':

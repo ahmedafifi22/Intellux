@@ -4,7 +4,7 @@ import numpy as np
 import RPi.GPIO as GPIO
 from pathlib import Path
 
-from Stepper_17HS4023_Driver_L298N import Pi_17HS4023_L298N
+from .Stepper_17HS4023_Driver_L298N import Pi_17HS4023_L298N
 
 class calibrate_intellux:
     '''intellux calibration class with target of finding full range steps'''
@@ -41,6 +41,7 @@ class calibrate_intellux:
                 self.stepper_motor.turn_CW(1)
                 num_steps += 1
             else:
+                self.stepper_motor.cleanup()
                 self.save_full_range_steps(num_steps)
                 break
 
@@ -54,10 +55,12 @@ class calibrate_intellux:
                 self.stepper_motor.turn_CCW(1)
                 num_steps += 1
             else:
+                self.stepper_motor.cleanup()
                 self.save_full_range_steps(num_steps)
                 break
 
     def save_full_range_steps(self, num_steps):
+        print("number of steps moved is", num_steps)
         with open(self.full_range_steps_file, 'wb') as f:
             np.save(f, num_steps)
 
